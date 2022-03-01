@@ -1,6 +1,0 @@
-projectKey=InvertingProxy
-serverUrl=http://localhost:9000
-serverVersion=9.2.3.50713
-dashboardUrl=http://localhost:9000/dashboard?id=InvertingProxy
-ceTaskId=AX4sBQqqC_3oe8BwnMy_
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AX4sBQqqC_3oe8BwnMy_
