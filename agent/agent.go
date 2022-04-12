@@ -1,4 +1,23 @@
 /*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: MIT-0
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+
 Copyright 2016 Google Inc. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -227,9 +246,9 @@ func pollForNewRequests(client *http.Client, hostProxy http.Handler, backendID s
 		}
 	}
 }
-func validateAWSAccess() {
+func validateAWSAccess(AWSConfig *aws.Config) {
 
-	svc := sts.New(session.New(&AWSConfig))
+	svc := sts.New(session.New(AWSConfig))
 
 	input := &sts.GetCallerIdentityInput{}
 
@@ -238,13 +257,15 @@ func validateAWSAccess() {
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 
-			//fmt.Println(aerr.Error())
+			fmt.Println(AWSConfig.Credentials);
+			fmt.Println(aerr.Error())
+
 			log.Fatal(aerr.Error())
 
 		} else {
 			// Print the error, cast err to awserr.Error to get the Code and
 			// Message from an error.
-			//fmt.Println(err.Error())
+			fmt.Println(err.Error())
 			log.Fatal(err.Error())
 		}
 
@@ -252,9 +273,9 @@ func validateAWSAccess() {
 
 	fmt.Println(result)
 
-	svc2 := iam.New(session.New(&AWSConfig))
+	svc2 := iam.New(session.New(AWSConfig))
 
-	input2 := &iam.ListGroupsForUserInput{UserName: &strings.Split(*result.Arn, "/")[1]}
+	/*input2 := &iam.ListGroupsForUserInput{UserName: &strings.Split(*result.Arn, "/")[1]}
 
 	result2, err := svc2.ListGroupsForUser(input2)
 	if err != nil {
@@ -269,7 +290,87 @@ func validateAWSAccess() {
 
 			return
 		}
+	}*/
+	//arn:aws:iam::843351432573:user/DevUser
+	//arn:aws:sts::843351432573:assumed-role/InvertingProxyRole/i-0f7e199a0b12dfae0
+	
+	var entityTags []*iam.Tag
+
+	if strings.HasPrefix(strings.Split(*result.Arn, ":")[5],"user"){
+	
+		input2 := &iam.ListUserTagsInput{
+			UserName: &strings.Split(*result.Arn, "/")[1],
+		}
+
+		result2, err := svc2.ListUserTags(input2)
+		if err != nil {
+			if aerr, ok := err.(awserr.Error); ok {
+				switch aerr.Code() {
+				case iam.ErrCodeNoSuchEntityException:
+					fmt.Println(iam.ErrCodeNoSuchEntityException, aerr.Error())
+				case iam.ErrCodeServiceFailureException:
+					fmt.Println(iam.ErrCodeServiceFailureException, aerr.Error())
+				default:
+					fmt.Println(aerr.Error())
+				}
+			} else {
+				// Print the error, cast err to awserr.Error to get the Code and
+				// Message from an error.
+				fmt.Println(err.Error())
+			}
+			return
+
+			
+		}
+		entityTags=result2.Tags
+		
+	} else {
+
+		input2 := &iam.ListRoleTagsInput{
+			RoleName: &strings.Split(*result.Arn, "/")[1],
+		}
+
+		result2, err := svc2.ListRoleTags(input2)
+		if err != nil {
+			if aerr, ok := err.(awserr.Error); ok {
+				switch aerr.Code() {
+				case iam.ErrCodeNoSuchEntityException:
+					fmt.Println(iam.ErrCodeNoSuchEntityException, aerr.Error())
+				case iam.ErrCodeServiceFailureException:
+					fmt.Println(iam.ErrCodeServiceFailureException, aerr.Error())
+				default:
+					fmt.Println(aerr.Error())
+				}
+			} else {
+				// Print the error, cast err to awserr.Error to get the Code and
+				// Message from an error.
+				fmt.Println(err.Error())
+			}
+			return
+
+		}
+		entityTags=result2.Tags
+
 	}
+
+	
+	fmt.Println("Entity tags")
+	fmt.Println(entityTags)
+
+		for _,tag := range entityTags {
+			
+			if(*tag.Key=="AllowedBackends") {
+			accessString:=strings.Split(*tag.Value, ",")
+			for i := range accessString {
+				
+				if accessString[i] == *backendID {
+				
+					return;
+				}
+			}
+		};
+	}	
+
 	log.Fatal("You AWS user doesn't have access to backend " + *backendID)
 
 }
@@ -279,7 +380,6 @@ func getHTTPClient(ctx context.Context) (*http.Client, error) {
 
 	mTLSConfig := &tls.Config{
 		CipherSuites: []uint16{
-			tls.TLS_RSA_WITH_RC4_128_SHA,
 			tls.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
 			tls.TLS_RSA_WITH_AES_128_CBC_SHA,
 			tls.TLS_ECDHE_RSA_WITH_RC4_128_SHA,
@@ -534,14 +634,26 @@ func main() {
 		sessionLRU = sessions.NewCache(*sessionCookieName, *sessionCookieTimeout, *sessionCookieCacheLimit, *disableSSLForTest)
 	}
 
-	AWSConfig := &aws.Config{
-		Region:      aws.String(*region),
-		Credentials: credentials.NewStaticCredentials(*awsaccesskey, *awssecret, ""),
+	//AWSConfig := aws.NewConfig().WithRegion(*region).WithCredentials(credentials.NewStaticCredentials(*awsaccesskey, *awssecret, ""))
+	
+	if len(*awsaccesskey)>0 && len(*awssecret)>0 && len(*region)>0 {
+		AWSConfig = aws.Config{
+			Region:           aws.String(*region),
+			Credentials:      credentials.NewStaticCredentials(*awsaccesskey, *awssecret, ""),
+		}
+	} else if len(*region)>0 {
+
+		AWSConfig = *aws.NewConfig().WithRegion(*region)
+
+	}	else 	{
+
+		AWSConfig = *aws.NewConfig()
+
 	}
 
-	validateAWSAccess()
+	validateAWSAccess(&AWSConfig)
 
-	mh, err := metrics.NewMetricHandler(ctx, *namespace, *backendID, *AWSConfig)
+	mh, err := metrics.NewMetricHandler(ctx, *namespace, *backendID, AWSConfig)
 	metricHandler = mh
 	if err != nil {
 		log.Printf("Unable to create metric handler: %v", err)
@@ -551,7 +663,7 @@ func main() {
 	go runHealthChecks()
 
 	if len(*SDNamespace) > 0 && len(*SDService) > 0 {
-		configureServiceDiscovery(*SDNamespace, *SDService, *AWSConfig)
+		configureServiceDiscovery(*SDNamespace, *SDService, AWSConfig)
 	}
 	if err := runAdapter(ctx); err != nil {
 		log.Fatal(err.Error())
