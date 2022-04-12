@@ -33,13 +33,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
+	"crypto/rand"
 	"net"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
-
+	"math"
+	"math/big"
 	"github.com/google/inverting-proxy/agent/utils"
 )
 
@@ -65,7 +66,7 @@ func newPendingRequest(r *http.Request) *pendingRequest {
 
 type proxy struct {
 	requestIDs    chan string
-	randGenerator *rand.Rand
+	//randGenerator *rand.Rand
 
 	// protects the map below
 	sync.Mutex
@@ -75,7 +76,7 @@ type proxy struct {
 func newProxy() *proxy {
 	return &proxy{
 		requestIDs:    make(chan string),
-		randGenerator: rand.New(rand.NewSource(time.Now().UnixNano())),
+		//randGenerator: rand.New(rand.NewSource(time.Now().UnixNano())),
 		requests:      make(map[string]*pendingRequest),
 	}
 }
@@ -188,7 +189,19 @@ func (p *proxy) handleAgentRequest(w http.ResponseWriter, r *http.Request, backe
 }
 
 func (p *proxy) newID() string {
-	sum := sha256.Sum256([]byte(fmt.Sprintf("%d", p.randGenerator.Int63())))
+	//sum := sha256.Sum256([]byte(fmt.Sprintf("%d", p.randGenerator.Int63())))
+
+	var maxVal big.Int
+
+	newGUID, err :=rand.Int(rand.Reader,  maxVal.SetUint64(math.MaxUint64)) 
+
+	if err != nil {
+		log.Printf("Internal error generating request ID %v", err)
+		return ""
+	}
+	sum := sha256.Sum256([]byte(fmt.Sprintf("%d", newGUID )))
+
+	
 	return fmt.Sprintf("%x", sum)
 }
 
