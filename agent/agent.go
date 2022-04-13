@@ -291,8 +291,7 @@ func validateAWSAccess(AWSConfig *aws.Config) {
 			return
 		}
 	}*/
-	//arn:aws:iam::843351432573:user/DevUser
-	//arn:aws:sts::843351432573:assumed-role/InvertingProxyRole/i-0f7e199a0b12dfae0
+	
 	
 	var entityTags []*iam.Tag
 
@@ -379,6 +378,7 @@ func getHTTPClient(ctx context.Context) (*http.Client, error) {
 	var err error
 
 	mTLSConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
 		CipherSuites: []uint16{
 			tls.TLS_AES_128_GCM_SHA256,
 			tls.TLS_AES_256_GCM_SHA384,
@@ -397,6 +397,7 @@ func getHTTPClient(ctx context.Context) (*http.Client, error) {
 
 	mTLSConfig.InsecureSkipVerify = true
 	tr := &http.Transport{
+		
 		TLSClientConfig: mTLSConfig,
 	}
 	client := &http.Client{Transport: tr}
