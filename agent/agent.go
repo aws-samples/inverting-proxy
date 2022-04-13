@@ -381,7 +381,6 @@ func getHTTPClient(ctx context.Context) (*http.Client, error) {
 	mTLSConfig := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_RSA_WITH_AES_128_CBC_SHA,
-			tls.TLS_ECDHE_RSA_WITH_RC4_128_SHA,
 			tls.TLS_RSA_WITH_AES_128_CBC_SHA,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
 		},
