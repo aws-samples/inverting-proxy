@@ -1,7 +1,7 @@
 # Inverting Application Proxy
-This repository contains source code of Inverting Proxy in support AWS blog on using Inverting Proxy pattern for multi-point connectivity.
+This repository contains source code for Inverting Proxy in support AWS blog on using inverting proxy pattern for multi-point cloud connectivity.
 
-The proxy is based on the original [Inverting Proxy](https://github.com/google/inverting-proxy) project by Omar Jarjur and others customized to run on AWS and integrate with AWS specific security and observability services.
+The proxy is based on the original [Inverting Proxy](https://github.com/google/inverting-proxy) project by Omar Jarjur and others modified to run on AWS and integrate with AWS specific security and observability services.
 
 ## Deploying and running the solution.
 
