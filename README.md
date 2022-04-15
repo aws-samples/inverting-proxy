@@ -1,9 +1,9 @@
-## Inverting Application Proxy
+# Inverting Application Proxy
 This repository contains source code of Inverting Proxy in support AWS blog on using Inverting Proxy pattern for multi-point connectivity.
 
 The proxy is based on the original [Inverting Proxy](https://github.com/google/inverting-proxy) project by Omar Jarjur and others customized to run on AWS and integrate with AWS specific security and observability services.
 
-# Deploying and running the solution.
+## Deploying and running the solution.
 
 The solution includes a simple Node.js  server application for demonstration purposes. The walkthrough below will use it as an example server-side application to simulate on-premises connectivity with inverting proxy. We will rely on a restrictive Security Group to simulate behind-the-firewall on-premises configuration.
 Steps:
