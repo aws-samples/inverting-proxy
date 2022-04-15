@@ -15,7 +15,7 @@ Steps:
 
         sudo yum update -y
 
-2.	Follow these instructions to install node.js
+2.	Follow [these](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html) instructions to install node.js
 
 3.	Clone the Inverting proxy repository to the “backend” instance
 
