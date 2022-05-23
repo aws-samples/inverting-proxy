@@ -41,8 +41,7 @@ Steps:
         sudo ./inverting-proxy –port 443 -tls
         2021/12/19 19:56:46 Listening on [::]:443
 
-9.	SSH back into backend EC2 server and configure the inverting proxy agent. Navigate to /bin folder in cloned repository and run the command below, replacing uppercase strings with the values appropriate to your environment. Note the required trailing slash after the   
-    proxy DNS URL.
+9.	SSH back into backend EC2 server and configure the inverting proxy agent. Navigate to /bin folder in cloned repository and run the command below, replacing uppercase strings with the values appropriate to your environment. Note the required trailing slash after the proxy DNS URL.
 
         ./ proxy-forwarding-agent -proxy https://YOUR_PROXYSERVER_PUBLIC_DNS / -backend SampleBackend-host localhost:443 -scheme https
 
