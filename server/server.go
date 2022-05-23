@@ -15,7 +15,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
 // Command server launches a stand-alone inverting proxy.
 //
 // Example usage:
@@ -26,22 +26,22 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/aws-samples/inverting-proxy/agent/utils"
 	"io"
 	"log"
-	"crypto/rand"
+	"math"
+	"math/big"
 	"net"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
-	"math"
-	"math/big"
-	"github.com/google/inverting-proxy/agent/utils"
 )
 
 var (
@@ -65,7 +65,7 @@ func newPendingRequest(r *http.Request) *pendingRequest {
 }
 
 type proxy struct {
-	requestIDs    chan string
+	requestIDs chan string
 	//randGenerator *rand.Rand
 
 	// protects the map below
@@ -75,9 +75,9 @@ type proxy struct {
 
 func newProxy() *proxy {
 	return &proxy{
-		requestIDs:    make(chan string),
+		requestIDs: make(chan string),
 		//randGenerator: rand.New(rand.NewSource(time.Now().UnixNano())),
-		requests:      make(map[string]*pendingRequest),
+		requests: make(map[string]*pendingRequest),
 	}
 }
 
@@ -193,15 +193,14 @@ func (p *proxy) newID() string {
 
 	var maxVal big.Int
 
-	newGUID, err :=rand.Int(rand.Reader,  maxVal.SetUint64(math.MaxUint64)) 
+	newGUID, err := rand.Int(rand.Reader, maxVal.SetUint64(math.MaxUint64))
 
 	if err != nil {
 		log.Printf("Internal error generating request ID %v", err)
 		return ""
 	}
-	sum := sha256.Sum256([]byte(fmt.Sprintf("%d", newGUID )))
+	sum := sha256.Sum256([]byte(fmt.Sprintf("%d", newGUID)))
 
-	
 	return fmt.Sprintf("%x", sum)
 }
 
@@ -280,7 +279,7 @@ func main() {
 			return
 		}
 
-		config := &tls.Config{MinVersion: tls.VersionTLS12,Certificates: []tls.Certificate{cer}}
+		config := &tls.Config{MinVersion: tls.VersionTLS12, Certificates: []tls.Certificate{cer}}
 		listener, err := tls.Listen("tcp", fmt.Sprintf(":%d", *port), config)
 		if err != nil {
 			log.Fatalf("Failed to create the TCP listener for port %d: %v", *port, err)

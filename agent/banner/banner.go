@@ -25,7 +25,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/google/inverting-proxy/agent/metrics"
+	"github.com/aws-samples/inverting-proxy/agent/metrics"
 )
 
 const (

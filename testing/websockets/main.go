@@ -31,9 +31,9 @@ import (
 	"net/http/httputil"
 	"net/url"
 
+	"github.com/aws-samples/inverting-proxy/agent/metrics"
+	"github.com/aws-samples/inverting-proxy/agent/websockets"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/google/inverting-proxy/agent/metrics"
-	"github.com/google/inverting-proxy/agent/websockets"
 )
 
 var (

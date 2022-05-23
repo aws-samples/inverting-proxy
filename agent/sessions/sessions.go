@@ -51,8 +51,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws-samples/inverting-proxy/agent/metrics"
 	"github.com/golang/groupcache/lru"
-	"github.com/google/inverting-proxy/agent/metrics"
 	"github.com/google/uuid"
 	"golang.org/x/net/publicsuffix"
 )

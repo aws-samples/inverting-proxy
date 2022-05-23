@@ -64,11 +64,11 @@ import (
 	uuid "github.com/nu7hatch/gouuid"
 	"golang.org/x/net/publicsuffix"
 
-	"github.com/google/inverting-proxy/agent/banner"
-	"github.com/google/inverting-proxy/agent/metrics"
-	"github.com/google/inverting-proxy/agent/sessions"
-	"github.com/google/inverting-proxy/agent/utils"
-	"github.com/google/inverting-proxy/agent/websockets"
+	"github.com/aws-samples/inverting-proxy/agent/banner"
+	"github.com/aws-samples/inverting-proxy/agent/metrics"
+	"github.com/aws-samples/inverting-proxy/agent/sessions"
+	"github.com/aws-samples/inverting-proxy/agent/utils"
+	"github.com/aws-samples/inverting-proxy/agent/websockets"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -253,11 +253,11 @@ func validateAWSAccess(AWSConfig *aws.Config) {
 	input := &sts.GetCallerIdentityInput{}
 
 	result, err := svc.GetCallerIdentity(input)
-	
+
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 
-			fmt.Println(AWSConfig.Credentials);
+			fmt.Println(AWSConfig.Credentials)
 			fmt.Println(aerr.Error())
 
 			log.Fatal(aerr.Error())
@@ -291,12 +291,11 @@ func validateAWSAccess(AWSConfig *aws.Config) {
 			return
 		}
 	}*/
-	
-	
+
 	var entityTags []*iam.Tag
 
-	if strings.HasPrefix(strings.Split(*result.Arn, ":")[5],"user"){
-	
+	if strings.HasPrefix(strings.Split(*result.Arn, ":")[5], "user") {
+
 		input2 := &iam.ListUserTagsInput{
 			UserName: &strings.Split(*result.Arn, "/")[1],
 		}
@@ -319,10 +318,9 @@ func validateAWSAccess(AWSConfig *aws.Config) {
 			}
 			return
 
-			
 		}
-		entityTags=result2.Tags
-		
+		entityTags = result2.Tags
+
 	} else {
 
 		input2 := &iam.ListRoleTagsInput{
@@ -348,27 +346,26 @@ func validateAWSAccess(AWSConfig *aws.Config) {
 			return
 
 		}
-		entityTags=result2.Tags
+		entityTags = result2.Tags
 
 	}
 
-	
 	fmt.Println("Entity tags")
 	fmt.Println(entityTags)
 
-		for _,tag := range entityTags {
-			
-			if(*tag.Key=="AllowedBackends") {
-			accessString:=strings.Split(*tag.Value, ",")
+	for _, tag := range entityTags {
+
+		if *tag.Key == "AllowedBackends" {
+			accessString := strings.Split(*tag.Value, ",")
 			for i := range accessString {
-				
+
 				if accessString[i] == *backendID {
-				
-					return;
+
+					return
 				}
 			}
-		};
-	}	
+		}
+	}
 
 	log.Fatal("You AWS user doesn't have access to backend " + *backendID)
 
@@ -391,13 +388,12 @@ func getHTTPClient(ctx context.Context) (*http.Client, error) {
 			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-		
 		},
 	}
 
 	mTLSConfig.InsecureSkipVerify = true
 	tr := &http.Transport{
-		
+
 		TLSClientConfig: mTLSConfig,
 	}
 	client := &http.Client{Transport: tr}
@@ -643,17 +639,17 @@ func main() {
 	}
 
 	//AWSConfig := aws.NewConfig().WithRegion(*region).WithCredentials(credentials.NewStaticCredentials(*awsaccesskey, *awssecret, ""))
-	
-	if len(*awsaccesskey)>0 && len(*awssecret)>0 && len(*region)>0 {
+
+	if len(*awsaccesskey) > 0 && len(*awssecret) > 0 && len(*region) > 0 {
 		AWSConfig = aws.Config{
-			Region:           aws.String(*region),
-			Credentials:      credentials.NewStaticCredentials(*awsaccesskey, *awssecret, ""),
+			Region:      aws.String(*region),
+			Credentials: credentials.NewStaticCredentials(*awsaccesskey, *awssecret, ""),
 		}
-	} else if len(*region)>0 {
+	} else if len(*region) > 0 {
 
 		AWSConfig = *aws.NewConfig().WithRegion(*region)
 
-	}	else 	{
+	} else {
 
 		AWSConfig = *aws.NewConfig()
 

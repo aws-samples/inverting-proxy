@@ -32,10 +32,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws-samples/inverting-proxy/agent/metrics"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/google/inverting-proxy/agent/metrics"
 )
 
 const (

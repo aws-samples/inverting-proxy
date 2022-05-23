@@ -1,6 +1,6 @@
 # Gorilla WebSocket
 
-Gorilla WebSocket is a [Go](http://golang.org/) implementation of the
+ WebSocket is a [Go](http://golang.org/) implementation of the
 [WebSocket](http://www.rfc-editor.org/rfc/rfc6455.txt) protocol.
 
 [![Build Status](https://travis-ci.org/gorilla/websocket.svg?branch=master)](https://travis-ci.org/gorilla/websocket)
